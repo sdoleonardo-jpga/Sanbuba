@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SANBUBA</title>
+<style>
+:root{
+  --esmeralda:#0a3d2b;
+  --esmeralda-esc:#062419;
+  --dourado:#c9a227;
+  --dourado-cl:#e8c85a;
+  --creme:#f7f1e3;
+  --grafite:#161a18;
+  --laranja:#e8863a;
+  --morango:#c8354a;
+  --folha:#3f8f4a;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  background:var(--esmeralda-esc);
+  color:var(--creme);
+  font-family:ui-sans-serif,-apple-system,'Segoe UI',Roboto,sans-serif;
+  overflow-x:hidden;padding-bottom:96px;
+}
+
+/* fundo tropical */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(232,134,58,.20), transparent 34%),
+    radial-gradient(circle at 88% 22%, rgba(63,143,74,.24), transparent 38%),
+    radial-gradient(circle at 20% 70%, rgba(200,53,74,.14), transparent 36%),
+    radial-gradient(circle at 78% 92%, rgba(201,162,39,.16), transparent 40%),
+    var(--esmeralda-esc);
+}
+#app{position:relative;z-index:1}
+
+/* folhas decorativas */
+.folhas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.13}
+.folhas svg{position:absolute}
+
+/* topo */
+header{
+  display:flex;align-items:center;gap:10px;padding:16px 18px 12px;
+  position:sticky;top:0;z-index:40;
+  background:linear-gradient(180deg,var(--esmeralda-esc) 68%,transparent);
+}
+.marca{display:flex;align-items:center;gap:9px}
+.brasao{width:36px;height:36px;border:2px solid var(--dourado);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;background:var(--esmeralda)}
+.brasao svg{width:22px;height:22px}
+.marca b{font-family:ui-serif,Georgia,'Times New Roman',serif;font-size:19px;
+  letter-spacing:.16em;color:var(--dourado-cl);font-weight:700}
+.carrinho{
+  margin-left:auto;display:flex;align-items:center;gap:7px;
+  background:var(--dourado);color:var(--esmeralda-esc);
+  border:none;border-radius:99px;padding:9px 16px;font-weight:800;font-size:13px;
+}
+.carrinho b{background:var(--esmeralda-esc);color:var(--dourado-cl);
+  border-radius:99px;min-width:20px;height:20px;display:flex;align-items:center;
+  justify-content:center;font-size:11px}
+
+/* CARROSSEL */
+.carrossel{position:relative;margin:0 0 6px}
+.trilho{
+  display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
+  scrollbar-width:none;gap:12px;padding:0 18px 12px;
+}
+.trilho::-webkit-scrollbar{display:none}
+.slide{
+  flex:0 0 84%;scroll-snap-align:center;position:relative;
+  border-radius:20px;overflow:hidden;aspect-ratio:4/5;
+  border:2px solid rgba(201,162,39,.45);
+  background:linear-gradient(160deg,var(--esmeralda),var(--esmeralda-esc));
+  box-shadow:0 10px 30px rgba(0,0,0,.45);
+}
+.slide img{width:100%;height:100%;object-fit:cover;display:block}
+.slide .vazio{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;
+}
+.slide .vazio svg{width:88px;height:88px;opacity:.85}
+.slide .vazio span{font-size:12px;color:rgba(247,241,227,.6);line-height:1.5}
+.slide .vazio code{background:rgba(0,0,0,.35);padding:3px 8px;border-radius:6px;
+  font-size:11px;color:var(--dourado-cl);display:inline-block;margin-top:4px}
+.slide .legenda{
+  position:absolute;left:0;right:0;bottom:0;padding:44px 18px 16px;
+  background:linear-gradient(transparent,rgba(6,36,25,.94));
+}
+.slide .legenda .k{font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dourado-cl);font-weight:800}
+.slide .legenda .t{font-family:ui-serif,Georgia,serif;font-size:24px;
+  line-height:1.1;margin-top:4px;color:var(--creme)}
+
+.pontos{display:flex;gap:7px;justify-content:center;padding:2px 0 14px}
+.ponto{width:7px;height:7px;border-radius:50%;background:rgba(247,241,227,.28);transition:.25s}
+.ponto.on{background:var(--dourado);width:20px;border-radius:99px}
+
+/* categorias */
+.cats{display:flex;gap:8px;padding:0 18px 14px;overflow-x:auto;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{
+  flex:0 0 auto;display:flex;align-items:center;gap:7px;
+  border:2px solid rgba(201,162,39,.4);background:rgba(10,61,43,.6);
+  color:var(--creme);border-radius:99px;padding:10px 18px;
+  font-size:13px;font-weight:800;white-space:nowrap;transition:.2s;
+}
+.cat svg{width:17px;height:17px}
+.cat.on{background:var(--dourado);color:var(--esmeralda-esc);border-color:var(--dourado)}
+
+/* seções */
+main{padding:0 18px}
+.tit{font-family:ui-serif,Georgia,serif;font-size:26px;color:var(--creme);
+  margin:14px 0 3px;letter-spacing:-.01em}
+.sub{font-size:13px;color:rgba(247,241,227,.6);margin-bottom:16px;line-height:1.5}
+
+.painel{display:none}.painel.on{display:block}
+
+/* dias */
+.dias{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:14px;margin:0 -18px;padding-left:18px;padding-right:18px}
+.dias::-webkit-scrollbar{display:none}
+.dia{
+  flex:0 0 158px;text-align:left;border-radius:16px;padding:14px;
+  border:2px solid rgba(201,162,39,.3);background:rgba(10,61,43,.55);
+  color:var(--creme);transition:.2s;position:relative;
+}
+.dia .dow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dourado-cl);font-weight:800}
+.dia .data{font-size:12px;color:rgba(247,241,227,.5);margin-top:1px}
+.dia .prato{font-family:ui-serif,Georgia,serif;font-size:17px;margin-top:8px;line-height:1.2}
+.dia .desc{font-size:11px;color:rgba(247,241,227,.55);margin-top:5px;line-height:1.4}
+.dia .qtd{font-size:10px;font-weight:800;margin-top:9px;letter-spacing:.06em;
+  text-transform:uppercase;padding:4px 9px;border-radius:99px;display:inline-block}
+.qtd.ok{background:rgba(63,143,74,.28);color:#7fd48c}
+.qtd.pouco{background:rgba(232,134,58,.28);color:#f0a869}
+.qtd.off{background:rgba(0,0,0,.35);color:rgba(247,241,227,.42)}
+.dia.hoje{border-color:var(--dourado)}
+.dia.hoje::after{content:'HOJE';position:absolute;top:-9px;right:11px;
+  background:var(--dourado);color:var(--esmeralda-esc);font-size:9px;font-weight:900;
+  letter-spacing:.1em;padding:3px 8px;border-radius:99px}
+.dia.sel{background:var(--dourado);border-color:var(--dourado);color:var(--esmeralda-esc)}
+.dia.sel .dow,.dia.sel .data,.dia.sel .desc{color:rgba(6,36,25,.7)}
+.dia:disabled{opacity:.4}
+
+/* opções */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:6px}
+.opt{
+  border:2px solid rgba(201,162,39,.3);background:rgba(10,61,43,.55);
+  color:var(--creme);border-radius:14px;padding:13px;text-align:left;transition:.2s;
+}
+.opt b{display:block;font-size:15px;font-weight:800}
+.opt small{display:block;font-size:11px;color:rgba(247,241,227,.55);margin-top:3px}
+.opt .pz{display:block;font-size:14px;font-weight:900;color:var(--dourado-cl);margin-top:6px}
+.opt.on{background:var(--dourado);border-color:var(--dourado);color:var(--esmeralda-esc)}
+.opt.on small,.opt.on .pz{color:rgba(6,36,25,.75)}
+
+.rot{font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dourado-cl);font-weight:800;margin:20px 0 9px}
+
+/* carrinho / resumo */
+.resumo{
+  background:rgba(10,61,43,.75);border:2px solid rgba(201,162,39,.35);
+  border-radius:18px;padding:16px;margin-top:22px;
+}
+.lin{display:flex;justify-content:space-between;font-size:14px;padding:7px 0;
+  border-bottom:1px dashed rgba(201,162,39,.2)}
+.lin:last-of-type{border-bottom:none}
+.lin span:first-child{color:rgba(247,241,227,.62)}
+.lin b{font-weight:800}
+.tot{display:flex;justify-content:space-between;align-items:baseline;
+  margin-top:12px;padding-top:12px;border-top:2px solid rgba(201,162,39,.3)}
+.tot span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dourado-cl);font-weight:800}
+.tot b{font-family:ui-serif,Georgia,serif;font-size:30px;color:var(--dourado-cl)}
+
+input[type=text]{
+  width:100%;border:2px solid rgba(201,162,39,.35);border-radius:12px;
+  background:rgba(0,0,0,.28);color:var(--creme);padding:13px;
+  font-family:inherit;font-size:15px;margin-top:8px;
+}
+input::placeholder{color:rgba(247,241,227,.35)}
+input:focus{outline:none;border-color:var(--dourado)}
+.aviso{font-size:11px;color:rgba(247,241,227,.5);margin-top:7px;line-height:1.5}
+
+/* barra fixa */
+.barra{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(transparent,var(--esmeralda-esc) 24%);
+}
+.enviar{
+  width:100%;background:var(--dourado);color:var(--esmeralda-esc);border:none;
+  border-radius:14px;padding:16px;font-size:15px;font-weight:900;
+  letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:9px;
+  box-shadow:0 8px 24px rgba(201,162,39,.3);
+}
+.enviar:disabled{background:rgba(247,241,227,.16);color:rgba(247,241,227,.4);box-shadow:none}
+.enviar svg{width:19px;height:19px}
+</style>
+</head>
+<body>
+
+<div class="folhas" id="folhas"></div>
+
+<div id="app">
+<header>
+  <div class="marca">
+    <div class="brasao">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 2l1.6 2.2L16 3.4l-.3 2.7 2.6.6-1.5 2.3 2.2 1.6-2.2 1.6q.3 4.6-4.8 9.8Q6.9 16.8 7.2 12.2L5 10.6l2.2-1.6L5.7 6.7l2.6-.6L8 3.4l2.4.8z"
+          fill="#c9a227"/>
+        <circle cx="10" cy="11" r="1" fill="#0a3d2b"/><circle cx="14" cy="11" r="1" fill="#0a3d2b"/>
+      </svg>
+    </div>
+    <b>SANBUBA</b>
+  </div>
+  <button class="carrinho">Pedido <b id="qtdCar">0</b></button>
+</header>
+
+<div class="carrossel">
+  <div class="trilho" id="trilho"></div>
+  <div class="pontos" id="pontos"></div>
+</div>
+
+<div class="cats" id="cats"></div>
+
+<main>
+  <!-- MARMITA -->
+  <div class="painel on" id="p-marmita">
+    <div class="tit">Cardápio da semana</div>
+    <div class="sub">Um prato por dia, feito na hora. Escolhe o dia e garante o seu.</div>
+    <div class="dias" id="dias"></div>
+
+    <div class="rot">Tamanho</div>
+    <div class="opts" id="tamanhos"></div>
+  </div>
+
+  <!-- SUCO -->
+  <div class="painel" id="p-suco">
+    <div class="tit">Suco natural</div>
+    <div class="sub">Feito na hora, sem açúcar adicionado. Vai junto com a marmita ou sozinho.</div>
+    <div class="opts" id="sucos"></div>
+  </div>
+
+  <!-- SANDUÍCHE -->
+  <div class="painel" id="p-sanduiche">
+    <div class="tit">Sanduíche artesanal</div>
+    <div class="sub">Pão fresco, recheio generoso. Pra quando a fome pede outra coisa.</div>
+    <div class="opts" id="sanduiches"></div>
+  </div>
+
+  <!-- RESUMO -->
+  <div class="resumo">
+    <div class="rot" style="margin-top:0">Seu pedido</div>
+    <div id="linhas"></div>
+    <div class="tot"><span>Total</span><b id="total">R$ 0,00</b></div>
+    <input type="text" id="nomePix" placeholder="Nome que aparece no seu Pix" autocomplete="name">
+    <div class="aviso">O pedido só é confirmado depois do Pix. Corte às <b id="hCorte"></b>.</div>
+  </div>
+</main>
+</div>
+
+<div class="barra">
+  <button class="enviar" id="enviar" disabled>
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1012 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.5-.6-2.6-1.1-4.3-3.8-4.4-4-.1-.2-1-1.4-1-2.6s.6-1.8.9-2.1c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.1.1.3 0 .5l-.3.4-.3.4c-.1.1-.3.3-.1.6.1.3.6 1.1 1.4 1.8 1 .9 1.8 1.1 2 1.2.3.1.4.1.6-.1l.8-1c.2-.2.4-.2.6-.1l1.8.9c.2.1.4.2.5.3s.1.6-.1 1.2z"/></svg>
+    <span id="txtEnviar">Escolha seu pedido</span>
+  </button>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   EDITE SÓ ESTE BLOCO TODA SEMANA
+   ══════════════════════════════════════════════════════════ */
+const CONFIG = {
+  whatsapp:"5534000000000",     // seu número, só dígitos, com 55 na frente
+  corte:"10:30",                 // depois disso o dia fecha
+
+  // fotos do leão — coloca os arquivos na mesma pasta deste HTML
+  fotos:[
+    {arq:"leao-marmita.png",   tag:"marmita",    txt:"Comida de verdade,<br>feita todo dia"},
+    {arq:"leao-suco.png",      tag:"suco",       txt:"Fruta espremida<br>na hora"},
+    {arq:"leao-sanduiche.png", tag:"sanduíche",  txt:"Pão fresco,<br>recheio sem economia"}
+  ],
+
+  cardapio:[
+    {dia:1, prato:"Frango grelhado",  desc:"Arroz, feijão e legumes salteados", qtd:14},
+    {dia:2, prato:"Carne de panela",  desc:"Arroz, feijão e batata dourada",    qtd:9},
+    {dia:3, prato:"Frango ao molho",  desc:"Arroz, feijão e cenoura com ervas", qtd:12},
+    {dia:4, prato:"Bife acebolado",   desc:"Arroz, feijão e mandioca",          qtd:7},
+    {dia:5, prato:"Feijoada da casa", desc:"Arroz, couve e farofa",             qtd:11}
+  ],
+
+  tamanhos:[
+    {id:"P", nome:"Pequena", desc:"Porção equilibrada", preco:16.00},
+    {id:"G", nome:"Grande",  desc:"Pra fome maior",     preco:21.00}
+  ],
+
+  sucos:[
+    {id:"laranja",  nome:"Laranja",  desc:"400ml", preco:6.00},
+    {id:"maracuja", nome:"Maracujá", desc:"400ml", preco:6.00},
+    {id:"abacaxi",  nome:"Abacaxi",  desc:"400ml", preco:6.00},
+    {id:"morango",  nome:"Morango",  desc:"400ml", preco:7.00}
+  ],
+
+  sanduiches:[
+    {id:"frango", nome:"Frango",  desc:"Grelhado, alface e tomate", preco:18.00},
+    {id:"carne",  nome:"Carne",   desc:"Desfiada com queijo",       preco:20.00}
+  ]
+};
+/* ══════════════════════════════════════════════════════════ */
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const brl=v=>'R$ '+v.toFixed(2).replace('.',',');
+const est={dia:null,tam:null,suco:null,sand:null};
+
+/* folhas de fundo */
+(()=>{
+  const svgFolha='<svg viewBox="0 0 40 40" fill="#c9a227"><path d="M20 2C10 8 4 18 6 30c12 4 24-6 28-24-6 2-10 0-14-4z"/></svg>';
+  const f=$('#folhas');
+  const pts=[[4,10,28,-20],[88,26,34,140],[10,58,24,60],[80,74,30,-40],[46,92,26,20]];
+  pts.forEach(([x,y,s,r])=>{
+    const d=document.createElement('div');
+    d.innerHTML=svgFolha;
+    d.style.cssText=`position:absolute;left:${x}%;top:${y}%;width:${s}px;height:${s}px;transform:rotate(${r}deg)`;
+    f.appendChild(d);
+  });
+})();
+
+/* carrossel */
+const icoLeao=`<svg viewBox="0 0 24 24" fill="none"><path d="M12 2l1.6 2.2L16 3.4l-.3 2.7 2.6.6-1.5 2.3 2.2 1.6-2.2 1.6q.3 4.6-4.8 9.8Q6.9 16.8 7.2 12.2L5 10.6l2.2-1.6L5.7 6.7l2.6-.6L8 3.4l2.4.8z" fill="#c9a227" opacity=".55"/></svg>`;
+$('#trilho').innerHTML=CONFIG.fotos.map(f=>`
+  <div class="slide">
+    <img src="${f.arq}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="vazio" style="display:none">
+      ${icoLeao}
+      <span>foto do leão com ${f.tag}<code>${f.arq}</code></span>
+    </div>
+    <div class="legenda"><div class="k">${f.tag}</div><div class="t">${f.txt}</div></div>
+  </div>`).join('');
+$('#pontos').innerHTML=CONFIG.fotos.map((_,i)=>`<div class="ponto ${i?'':'on'}"></div>`).join('');
+$('#trilho').onscroll=()=>{
+  const t=$('#trilho'), i=Math.round(t.scrollLeft/(t.scrollWidth/CONFIG.fotos.length));
+  $$('.ponto').forEach((p,j)=>p.classList.toggle('on',j===i));
+};
+
+/* categorias */
+const CATS=[
+  {id:'marmita',   nome:'Marmita',   ico:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h16v10a2 2 0 01-2 2H6a2 2 0 01-2-2V8zm1-4h14l1 3H4l1-3z"/></svg>'},
+  {id:'suco',      nome:'Suco',      ico:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 3h10l-1 4H8L7 3zm1 6h8l-1 11a1.5 1.5 0 01-1.5 1.4h-3A1.5 1.5 0 019 20L8 9z"/></svg>'},
+  {id:'sanduiche', nome:'Sanduíche', ico:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9c0-3 4-5 9-5s9 2 9 5H3zm0 2h18v2H3v-2zm0 4h18c0 3-4 5-9 5s-9-2-9-5z"/></svg>'}
+];
+$('#cats').innerHTML=CATS.map((c,i)=>
+  `<button class="cat ${i?'':'on'}" data-c="${c.id}">${c.ico}${c.nome}</button>`).join('');
+$$('.cat').forEach(b=>b.onclick=()=>{
+  $$('.cat').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  $$('.painel').forEach(p=>p.classList.remove('on'));
+  $('#p-'+b.dataset.c).classList.add('on');
+});
+
+/* dias da semana */
+function semana(){
+  const h=new Date(), d=h.getDay(), seg=new Date(h);
+  seg.setDate(h.getDate()-(d===0?6:d-1)); seg.setHours(0,0,0,0);
+  return CONFIG.cardapio.map(m=>({...m,
+    data:new Date(seg.getFullYear(),seg.getMonth(),seg.getDate()+m.dia-1)}));
+}
+function fechado(it){
+  const h=new Date(), hj=new Date(h.getFullYear(),h.getMonth(),h.getDate());
+  if(it.data<hj) return true;
+  if(it.data.getTime()===hj.getTime()){
+    const [hh,mm]=CONFIG.corte.split(':').map(Number), c=new Date(h);
+    c.setHours(hh,mm,0,0); if(h>c) return true;
+  }
+  return it.qtd<=0;
+}
+function renderDias(){
+  const hoje=new Date().toDateString();
+  $('#dias').innerHTML=semana().map((d,i)=>{
+    const off=fechado(d);
+    const txt=d.qtd<=0?'Esgotado':off?'Encerrado':`Restam ${d.qtd}`;
+    const cls=d.qtd<=0||off?'off':(d.qtd<=4?'pouco':'ok');
+    return `<button class="dia ${d.data.toDateString()===hoje?'hoje':''}" data-i="${i}" ${off?'disabled':''}>
+      <div class="dow">${d.data.toLocaleDateString('pt-BR',{weekday:'long'})}</div>
+      <div class="data">${d.data.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</div>
+      <div class="prato">${d.prato}</div>
+      <div class="desc">${d.desc}</div>
+      <div class="qtd ${cls}">${txt}</div></button>`;
+  }).join('');
+  $$('.dia:not(:disabled)').forEach(b=>b.onclick=()=>{
+    const j=+b.dataset.i;
+    if(est.dia&&est.dia.i===j){est.dia=null;b.classList.remove('sel')}
+    else{$$('.dia').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');
+      est.dia={...semana()[j],i:j}}
+    resumo();
+  });
+}
+
+/* opções genéricas */
+function opcoes(alvo,lista,chave,extra){
+  $(alvo).innerHTML=lista.map(o=>`<button class="opt" data-id="${o.id}">
+    <b>${o.nome}</b><small>${o.desc}</small><span class="pz">${brl(o.preco)}</span></button>`).join('');
+  $$(alvo+' .opt').forEach(b=>b.onclick=()=>{
+    const sel=est[chave]&&est[chave].id===b.dataset.id;
+    $$(alvo+' .opt').forEach(x=>x.classList.remove('on'));
+    if(sel){est[chave]=null}
+    else{b.classList.add('on');est[chave]=lista.find(o=>o.id===b.dataset.id)}
+    resumo();
+  });
+}
+opcoes('#tamanhos',CONFIG.tamanhos.map(t=>({...t,id:t.id})),'tam');
+opcoes('#sucos',CONFIG.sucos,'suco');
+opcoes('#sanduiches',CONFIG.sanduiches,'sand');
+
+/* resumo */
+function resumo(){
+  const its=[];
+  if(est.dia&&est.tam) its.push([`${est.dia.prato} · ${est.tam.nome}`,est.tam.preco]);
+  else if(est.tam)     its.push([`Marmita ${est.tam.nome} · falta o dia`,est.tam.preco]);
+  if(est.suco) its.push([`Suco de ${est.suco.nome}`,est.suco.preco]);
+  if(est.sand) its.push([`Sanduíche de ${est.sand.nome}`,est.sand.preco]);
+
+  $('#linhas').innerHTML = its.length
+    ? its.map(([n,p])=>`<div class="lin"><span>${n}</span><b>${brl(p)}</b></div>`).join('')
+    : `<div class="lin"><span>Nada escolhido ainda</span><b>—</b></div>`;
+
+  const tot=its.reduce((s,[,p])=>s+p,0);
+  $('#total').textContent=brl(tot);
+  $('#qtdCar').textContent=its.length;
+
+  const marmitaOk = !est.tam || est.dia;      // se pediu marmita, precisa do dia
+  const temAlgo   = its.length>0;
+  const temNome   = $('#nomePix').value.trim().length>=2;
+  const ok = temAlgo && marmitaOk && temNome;
+
+  $('#enviar').disabled=!ok;
+  $('#txtEnviar').textContent =
+    !temAlgo ? 'Escolha seu pedido' :
+    !marmitaOk ? 'Escolha o dia da marmita' :
+    !temNome ? 'Falta o nome do Pix' :
+    `Enviar pedido · ${brl(tot)}`;
+}
+$('#nomePix').oninput=resumo;
+$('#hCorte').textContent=CONFIG.corte;
+
+/* envio */
+$('#enviar').onclick=()=>{
+  if($('#enviar').disabled)return;
+  const L=['*PEDIDO SANBUBA*',''];
+  let tot=0;
+  if(est.tam){
+    L.push(`Marmita ${est.tam.nome}`);
+    if(est.dia) L.push(`  ${est.dia.data.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'})} — ${est.dia.prato}`);
+    L.push(`  ${brl(est.tam.preco)}`); tot+=est.tam.preco;
+  }
+  if(est.suco){L.push(`Suco de ${est.suco.nome} — ${brl(est.suco.preco)}`);tot+=est.suco.preco}
+  if(est.sand){L.push(`Sanduíche de ${est.sand.nome} — ${brl(est.sand.preco)}`);tot+=est.sand.preco}
+  L.push('',`*Total: ${brl(tot)}*`,`Nome no Pix: ${$('#nomePix').value.trim()}`);
+  window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(L.join('\n'))}`,'_blank');
+};
+
+renderDias();resumo();
+</script>
+</body>
+</html>
